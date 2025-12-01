@@ -14,6 +14,7 @@ int main() {
     bool mouseDown = false;
     bool mouseInWindow = false;
     bool ballHittingGround = false;
+    bool inBallRange = false;
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test");
 
@@ -46,7 +47,7 @@ int main() {
             mouseDown = false;
         }
         // Check if mouse is within window bounds
-        if (mouseX >= 0 && mouseX <= 800 - radius * 2 && mouseY >= 0 && mouseY <= 600) {
+        if (mouseX >= 0 && mouseX <= 800 && mouseY >= 0 && mouseY <= 600) {
             mouseInWindow = true;
         }
         else {
@@ -60,6 +61,15 @@ int main() {
         else {
             touchingBall = false;
         }
+
+        //Checks if mouse is in ball range
+        if (mouseX >= ballX - 100 && mouseX <= ballX + radius * 2 + 100 && mouseY >= ballY - 100 && mouseY <= ballY + radius * 2 + 100) {
+            inBallRange = true;
+        }
+        else {
+            inBallRange = false;
+        }
+        
 
         //Checks if ball is hitting ground
         if (ballY >= 600 - radius * 2) {
@@ -77,22 +87,18 @@ int main() {
             ball.setPosition(ballX, ballY);
         }
 
-        if (mouseDown && touchingBall && mouseInWindow) {
+        if (mouseDown && inBallRange && mouseInWindow) {
+            fallVelocity = 0.0f;
             ballX = mouseX - radius;
             ballY = mouseY - radius;
-            fallVelocity = 0.0f;
-            ball.setPosition(ballX, ballY);
         }
         
         if (!ballHittingGround) {
-            fallVelocity += 7.5f;
+            fallVelocity += 950.0f * dt;
             ballY += fallVelocity * dt;
-            ball.setPosition(ballX, ballY);
         }
         else {
             fallVelocity = 0.0f;
-            ballY = 600 - radius * 2;
-            ball.setPosition(ballX, ballY);
         }
 
         window.clear();
