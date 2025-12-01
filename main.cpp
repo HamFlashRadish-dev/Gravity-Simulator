@@ -12,9 +12,16 @@ int main() {
     float mouseY;
     bool touchingBall = false;
     bool mouseDown = false;
+    bool draggingBall = false;
     bool mouseInWindow = false;
     bool ballHittingGround = false;
     bool inBallRange = false;
+    float previousY = mouseY;
+    float previousX = mouseX;
+    float currentYSpeedIncrease = 0.0f;
+    float currentXSpeedIncrease = 0.0f;
+    float velocityX = 0.0f;
+    float velocityY = 0.0f;
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test");
 
@@ -69,6 +76,15 @@ int main() {
         else {
             inBallRange = false;
         }
+
+        //Checks if dragging ball
+        /*if (mouseDown && touchingBall) {
+            draggingBall = true;
+        }
+
+        if (!mouseDown) {
+            draggingBall = false;
+        }*/
         
 
         //Checks if ball is hitting ground
@@ -84,21 +100,54 @@ int main() {
             ballX = 400 - radius;
             ballY = 200 - radius;
             fallVelocity = 0.0f;
-            ball.setPosition(ballX, ballY);
+            velocityX = 0.0f;
+            velocityY = 0.0f;
+            //ball.setPosition(ballX, ballY);
         }
 
-        if (mouseDown && inBallRange && mouseInWindow) {
+        if (mouseDown && touchingBall && !draggingBall) {
+            draggingBall = true;
             fallVelocity = 0.0f;
+            velocityX = 0.0f;
+            velocityY = 0.0f;
+        }
+
+        //Grabbing ball
+        if (mouseDown && draggingBall && mouseInWindow) {
+            //Mouse throwing mechanic
+            currentXSpeedIncrease = (mouseX - previousX) / dt;
+            currentYSpeedIncrease = (mouseY - previousY) / dt;
+
+            //fallVelocity = 0.0f;
             ballX = mouseX - radius;
             ballY = mouseY - radius;
         }
+        else if (!mouseDown && draggingBall) {
+            draggingBall = false;
+            fallVelocity = -velocityY;
+        }
+
+        previousX = mouseX;
+        previousY = mouseY;
+
+        static bool wasDragging = false;
+
+        if (!draggingBall) {
+            ballX += currentXSpeedIncrease * dt;
+
+            velocityX = 0.99f;
+        }
+
+        //wasDragging = draggingBall;
         
-        if (!ballHittingGround) {
+        //Gravity effect
+        if (!ballHittingGround && !draggingBall) {
             fallVelocity += 950.0f * dt;
             ballY += fallVelocity * dt;
         }
         else {
             fallVelocity = 0.0f;
+            velocityX *= 0.7f;
         }
 
         window.clear();
